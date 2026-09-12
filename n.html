@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Time Challenge - Mastering Time with Python</title>
+    <style>
+        /* --- RESET & BASIC STYLES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #38bdf8;
+            --primary-hover: #0284c7;
+            --secondary: #a855f7;
+            --accent: #f59e0b;
+            --success: #22c55e;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --easy-color: #22c55e;
+            --medium-color: #f59e0b;
+            --hard-color: #f97316;
+            --boss-color: #ef4444;
+            --code-bg: #090d16;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 15px;
+            overflow-x: hidden;
+        }
+
+        /* --- CONTAINER & CARDS --- */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Top Header / Score Bar */
+        .top-bar {
+            background: var(--card-bg);
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .completed-badge {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* Card Section Styles */
+        .card {
+            background: var(--card-bg);
+            border: 2px solid #334155;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            margin-bottom: 20px;
+            display: none; /* Controlled via JS */
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .card.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Home Page Styling */
+        .home-card {
+            text-align: center;
+            padding: 40px 25px;
+        }
+
+        .home-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .home-subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .home-desc {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Progress Header inside Questions */
+        .progress-header {
+            margin-bottom: 25px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar-bg {
+            background-color: #334155;
+            height: 14px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        /* Badges & Tags */
+        .difficulty-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .diff-easy { background: rgba(34, 197, 94, 0.15); color: var(--easy-color); border: 1px solid var(--easy-color); }
+        .diff-medium { background: rgba(245, 158, 11, 0.15); color: var(--medium-color); border: 1px solid var(--medium-color); }
+        .diff-hard { background: rgba(249, 115, 22, 0.15); color: var(--hard-color); border: 1px solid var(--hard-color); }
+        .diff-boss { background: rgba(239, 68, 68, 0.15); color: var(--boss-color); border: 1px solid var(--boss-color); }
+
+        /* Typography & Content */
+        h2 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        p {
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        /* Code Display Styling */
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        code {
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            color: #38bdf8;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .code-comment { color: #64748b; }
+        .code-keyword { color: #f472b6; }
+        .code-string { color: #a3e635; }
+
+        /* Output Box */
+        .output-box {
+            background-color: #020617;
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            font-family: monospace;
+            color: #e2e8f0;
+        }
+
+        /* Buttons & Actions */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: #0f172a;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: var(--text-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #475569;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #475569;
+            color: var(--text-light);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+        }
+
+        .btn-complete {
+            background: #1e293b;
+            border: 2px solid var(--success);
+            color: var(--success);
+        }
+
+        .btn-lg {
+            padding: 16px 36px;
+            font-size: 1.2rem;
+            border-radius: 16px;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        /* Interactive Collapsible Sections */
+        .collapsible-content {
+            display: none;
+            margin-top: 15px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px dashed #475569;
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .collapsible-content.show {
+            display: block;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #334155;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            color: #0f172a;
+        }
+
+        /* Navigation Buttons Bottom */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #334155;
+        }
+
+        /* Quick Review List */
+        .review-item {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-item h3 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .note-box {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #fef08a;
+        }
+
+        /* Final Challenge Checklist */
+        .checklist {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .checklist li {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #334155;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.05rem;
+        }
+
+        /* Result Screen */
+        .result-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .score-big {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .feedback-msg {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toast Feedback */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            .top-bar { padding: 12px 16px; }
+            .btn { width: 100%; }
+            .nav-footer { flex-direction: column-reverse; gap: 10px; }
+            .nav-footer .btn { width: 100%; }
+            .action-row .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TOP SCORE & STATUS BAR -->
+        <div class="top-bar">
+            <div class="score-badge">
+                <span>🏆 Score:</span>
+                <span id="score-display">0</span> / 100
+            </div>
+            <div class="completed-badge">
+                <span id="completed-count">0</span> / 10 Soal Selesai
+            </div>
+        </div>
+
+        <!-- 1. HOME CARD -->
+        <div id="card-home" class="card home-card active">
+            <h1 class="home-title">⏱️ PYTHON TIME CHALLENGE</h1>
+            <div class="home-subtitle">"Mastering Time with Python"</div>
+            <p class="home-desc">
+                Latih kemampuanmu menggunakan <code>time.sleep()</code>, <code>time.time()</code>, countdown, stopwatch, dan reaction time!
+            </p>
+            <button class="btn btn-primary btn-lg" onclick="goToCard('card-review')">
+                🚀 MULAI CHALLENGE
+            </button>
+        </div>
+
+        <!-- 2. QUICK REVIEW CARD -->
+        <div id="card-review" class="card">
+            <h2>📚 QUICK REVIEW</h2>
+            <p>Sebelum mulai bertanding, yuk pahami materi dasar berikut ini!</p>
+
+            <div class="review-item">
+                <h3>1. Import time</h3>
+                <pre><code>import time</code></pre>
+                <p><strong>Penjelasan:</strong> <code>time</code> adalah library bawaan Python yang dapat digunakan untuk bekerja dengan waktu.</p>
+            </div>
+
+            <div class="review-item">
+                <h3>2. time.sleep()</h3>
+                <pre><code>time.sleep(3)</code></pre>
+                <p><strong>Penjelasan:</strong> Program akan berhenti sementara selama 3 detik.</p>
+                <p><strong>Contoh:</strong></p>
+                <pre><code>import time
+
+print("Mulai!")
+time.sleep(3)
+print("Selesai!")</code></pre>
+            </div>
+
+            <div class="review-item">
+                <h3>3. time.time()</h3>
+                <pre><code>waktu = time.time()</code></pre>
+                <p><strong>Penjelasan:</strong> <code>time.time()</code> digunakan untuk mendapatkan waktu saat ini dalam bentuk angka detik unik (timestamp).</p>
+            </div>
+
+            <div class="review-item">
+                <h3>4. Menghitung Selisih Waktu</h3>
+                <pre><code>awal = time.time()
+# proses yang diukur
+akhir = time.time()
+
+hasil = akhir - awal
+print(hasil)</code></pre>
+                <p><strong>Penjelasan:</strong> Selisih <code>akhir - awal</code> digunakan untuk mengetahui berapa lama sebuah proses berlangsung.</p>
+            </div>
+
+            <div class="note-box">
+                💡 Catatan: <code>time.time()</code> menggunakan satuan detik.
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-home')">⬅️ Kembali ke Home</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q1')">Mulai Soal 1 ➡️</button>
+            </div>
+        </div>
+
+        <!-- 3. SOAL 1 -->
+        <div id="card-q1" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 1 dari 10</span>
+                    <span>10%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 10%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-easy">🟢 EASY</span>
+            <h2>Soal 1 — Waktu Sekarang</h2>
+            <p>Import library time, lalu tampilkan waktu saat ini menggunakan <code>time.time()</code>.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-1')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-1', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-1" class="btn btn-success" onclick="markComplete(1)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-1" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan <code>import time</code> di awal kode, lalu panggil fungsi <code>time.time()</code>.
+            </div>
+
+            <div id="ans-1" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-1')">📋 Copy Code</button><code id="code-1">import time
+
+waktu = time.time()
+print("Waktu sekarang:", waktu)</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" disabled>⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q2')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 4. SOAL 2 -->
+        <div id="card-q2" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 2 dari 10</span>
+                    <span>20%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 20%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-easy">🟢 EASY</span>
+            <h2>Soal 2 — Sleep 3 Detik</h2>
+            <p>Buat program yang menampilkan <code>"Mulai!"</code>, kemudian berhenti selama 3 detik, lalu menampilkan <code>"Selesai!"</code>.</p>
+
+            <div class="output-box">
+                Mulai!<br>
+                <em>(tunggu 3 detik)</em><br>
+                Selesai!
+            </div>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-2')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-2', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-2" class="btn btn-success" onclick="markComplete(2)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-2" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan <code>time.sleep(3)</code> untuk membuat program berhenti/jeda selama 3 detik.
+            </div>
+
+            <div id="ans-2" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-2')">📋 Copy Code</button><code id="code-2">import time
+
+print("Mulai!")
+time.sleep(3)
+print("Selesai!")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q1')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q3')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 5. SOAL 3 -->
+        <div id="card-q3" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 3 dari 10</span>
+                    <span>30%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 30%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-easy">🟢 EASY</span>
+            <h2>Soal 3 — Countdown</h2>
+            <p>Buat countdown dari angka 5 sampai 1 dengan jeda 1 detik pada setiap angka, lalu cetak "GO!".</p>
+
+            <div class="output-box">
+                5<br>4<br>3<br>2<br>1<br>GO!
+            </div>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-3')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-3', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-3" class="btn btn-success" onclick="markComplete(3)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-3" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan perulangan <code>for i in range(5, 0, -1):</code> dan <code>time.sleep(1)</code>.
+            </div>
+
+            <div id="ans-3" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-3')">📋 Copy Code</button><code id="code-3">import time
+
+for i in range(5, 0, -1):
+    print(i)
+    time.sleep(1)
+
+print("GO!")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q2')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q4')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 6. SOAL 4 -->
+        <div id="card-q4" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 4 dari 10</span>
+                    <span>40%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 40%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-medium">🟡 MEDIUM</span>
+            <h2>Soal 4 — Mengukur Waktu</h2>
+            <p>Gunakan <code>time.time()</code> untuk menghitung berapa lama sebuah proses berlangsung. Simpan waktu awal, buat program jeda 3 detik, simpan waktu akhir, lalu hitung selisihnya.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-4')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-4', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-4" class="btn btn-success" onclick="markComplete(4)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-4" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan rumus <code>akhir - awal</code> untuk mendapatkan durasi selisih waktu.
+            </div>
+
+            <div id="ans-4" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-4')">📋 Copy Code</button><code id="code-4">import time
+
+awal = time.time()
+time.sleep(3)
+akhir = time.time()
+
+hasil = akhir - awal
+print("Program berjalan selama", hasil, "detik")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q3')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q5')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 7. SOAL 5 -->
+        <div id="card-q5" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 5 dari 10</span>
+                    <span>50%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 50%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-medium">🟡 MEDIUM</span>
+            <h2>Soal 5 — Stopwatch</h2>
+            <p>Buat program stopwatch sederhana. Program meminta pengguna menekan ENTER untuk mulai, lalu menekan ENTER lagi untuk berhenti, dan tampilkan waktu yang berlalu dalam detik.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-5')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-5', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-5" class="btn btn-success" onclick="markComplete(5)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-5" class="collapsible-content">
+                💡 <strong>Hint:</strong> Catat <code>time.time()</code> tepat setelah perintah <code>input()</code> dipanggil.
+            </div>
+
+            <div id="ans-5" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-5')">📋 Copy Code</button><code id="code-5">import time
+
+input("Tekan ENTER untuk mulai...")
+awal = time.time()
+
+input("Tekan ENTER untuk berhenti...")
+akhir = time.time()
+
+hasil = akhir - awal
+print("Waktu:", round(hasil, 2), "detik")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q4')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q6')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 8. SOAL 6 -->
+        <div id="card-q6" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 6 dari 10</span>
+                    <span>60%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 60%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-medium">🟡 MEDIUM</span>
+            <h2>Soal 6 — Reaction Time</h2>
+            <p>Buat game tes waktu reaksi. Program menampilkan "Bersiap...", tunggu 2 detik, tampilkan "GO!", lalu ukur secepat apa user menekan ENTER.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-6')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-6', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-6" class="btn btn-success" onclick="markComplete(6)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-6" class="collapsible-content">
+                💡 <strong>Hint:</strong> Mulai menghitung waktu <code>awal = time.time()</code> tepat setelah "GO!" muncul.
+            </div>
+
+            <div id="ans-6" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-6')">📋 Copy Code</button><code id="code-6">import time
+
+print("Bersiap...")
+time.sleep(2)
+print("GO!")
+
+awal = time.time()
+input("Tekan ENTER secepat mungkin!")
+akhir = time.time()
+
+hasil = akhir - awal
+print("Waktu reaksi kamu:", round(hasil, 2), "detik")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q5')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q7')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 9. SOAL 7 -->
+        <div id="card-q7" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 7 dari 10</span>
+                    <span>70%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 70%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-hard">🟠 HARD</span>
+            <h2>Soal 7 — Timer 10 Detik</h2>
+            <p>Buat timer countdown dari angka 10 sampai 1 dengan jeda 1 detik per angka. Setelah hitungan selesai, tampilkan: <code>⏰ Waktu habis!</code>.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-7')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-7', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-7" class="btn btn-success" onclick="markComplete(7)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-7" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan perulangan mundur <code>range(10, 0, -1)</code>.
+            </div>
+
+            <div id="ans-7" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-7')">📋 Copy Code</button><code id="code-7">import time
+
+for i in range(10, 0, -1):
+    print(i)
+    time.sleep(1)
+
+print("⏰ Waktu habis!")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q6')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q8')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 10. SOAL 8 -->
+        <div id="card-q8" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 8 dari 10</span>
+                    <span>80%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 80%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-hard">🟠 HARD</span>
+            <h2>Soal 8 — Batas Waktu Input</h2>
+            <p>Buat program yang memberi waktu maksimal 10 detik bagi pengguna untuk memasukkan nama. Jika berhasil &le; 10 detik cetak "Jawaban diterima!", jika lebih cetak "Waktu habis!".</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-8')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-8', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-8" class="btn btn-success" onclick="markComplete(8)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-8" class="collapsible-content">
+                💡 <strong>Hint:</strong> Gunakan percabangan <code>if hasil <= 10:</code> setelah mengukur durasi selisih input.
+            </div>
+
+            <div id="ans-8" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-8')">📋 Copy Code</button><code id="code-8">import time
+
+awal = time.time()
+nama = input("Masukkan nama kamu: ")
+akhir = time.time()
+
+hasil = akhir - awal
+
+if hasil <= 10:
+    print("Jawaban diterima!")
+    print("Waktu:", round(hasil, 2), "detik")
+else:
+    print("Waktu habis!")
+    print("Kamu membutuhkan", round(hasil, 2), "detik")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q7')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q9')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 11. SOAL 9 -->
+        <div id="card-q9" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 9 dari 10</span>
+                    <span>90%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 90%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-boss">🔴 VERY HARD</span>
+            <h2>Soal 9 — Time Challenge Game</h2>
+            <p>Buat game tebak angka 1–10 secara acak dengan batas waktu menjawab 10 detik. Periksa apakah tebakan benar dan tidak melebih batas waktu.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-9')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-9', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-9" class="btn btn-success" onclick="markComplete(9)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-9" class="collapsible-content">
+                💡 <strong>Hint:</strong> Import <code>randint</code> dari library <code>random</code>. Cek durasi waktu menggunakan <code>if waktu > 10:</code> terlebih dahulu.
+            </div>
+
+            <div id="ans-9" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-9')">📋 Copy Code</button><code id="code-9">import time
+from random import randint
+
+angka_rahasia = randint(1, 10)
+
+awal = time.time()
+tebakan = int(input("Tebak angka 1-10: "))
+akhir = time.time()
+
+waktu = akhir - awal
+
+if waktu > 10:
+    print("⏰ Waktu habis!")
+elif tebakan == angka_rahasia:
+    print("🎉 Kamu menang!")
+    print("Waktu:", round(waktu, 2), "detik")
+else:
+    print("❌ Tebakan salah!")
+    print("Angka yang benar:", angka_rahasia)</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q8')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-q10')">Berikutnya ➡️</button>
+            </div>
+        </div>
+
+        <!-- 12. SOAL 10 -->
+        <div id="card-q10" class="card">
+            <div class="progress-header">
+                <div class="progress-info">
+                    <span>Soal 10 dari 10</span>
+                    <span>100%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 100%;"></div></div>
+            </div>
+
+            <span class="difficulty-tag diff-boss">🔴 BOSS CHALLENGE</span>
+            <h2>Soal 10 — Speed Typing Challenge</h2>
+            <p>Buat game ketik cepat! Tampilkan kata <code>"PYTHON"</code>, catat waktu mengetik user, dan validasi apakah kata yang diketik benar.</p>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="toggleSection('hint-10')">💡 Hint</button>
+                <button class="btn btn-outline" onclick="toggleAnswer('ans-10', this)">🔓 Lihat Kunci Jawaban</button>
+                <button id="mark-btn-10" class="btn btn-success" onclick="markComplete(10)">✅ Tandai Selesai</button>
+            </div>
+
+            <div id="hint-10" class="collapsible-content">
+                💡 <strong>Hint:</strong> Ambil timestamp sebelum <code>input()</code> dan sesudah <code>input()</code>, lalu cocokkan variabel jawaban dengan string <code>"PYTHON"</code>.
+            </div>
+
+            <div id="ans-10" class="collapsible-content">
+                <pre><button class="copy-btn" onclick="copyCode('code-10')">📋 Copy Code</button><code id="code-10">import time
+
+print("Ketik kata berikut:")
+print("PYTHON")
+
+awal = time.time()
+jawaban = input("Ketik: ")
+akhir = time.time()
+
+waktu = akhir - awal
+
+if jawaban == "PYTHON":
+    print("Benar!")
+    print("Waktu kamu:", round(waktu, 2), "detik")
+else:
+    print("Jawaban salah!")</code></pre>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q9')">⬅️ Sebelumnya</button>
+                <button class="btn btn-primary" onclick="goToCard('card-final')">🏆 FINAL CHALLENGE ➡️</button>
+            </div>
+        </div>
+
+        <!-- 13. FINAL CHALLENGE CARD -->
+        <div id="card-final" class="card">
+            <h2>🏆 FINAL TIME CHALLENGE</h2>
+            <p><strong>Instruksi:</strong> Buat program stopwatch buatanmu sendiri secara mandiri tanpa melihat kunci jawaban!</p>
+
+            <div class="note-box" style="margin-bottom: 20px;">
+                🎯 <strong>Kriteria Syarat Penilaian:</strong>
+            </div>
+
+            <ul class="checklist">
+                <li><input type="checkbox" id="chk1"> <label for="chk1">Menggunakan <code>import time</code></label></li>
+                <li><input type="checkbox" id="chk2"> <label for="chk2">Menggunakan <code>time.time()</code></label></li>
+                <li><input type="checkbox" id="chk3"> <label for="chk3">Menggunakan fungsi <code>input()</code></label></li>
+                <li><input type="checkbox" id="chk4"> <label for="chk4">Menghitung selisih waktu (durasi)</label></li>
+                <li><input type="checkbox" id="chk5"> <label for="chk5">Menampilkan hasil akhir dalam satuan detik</label></li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-success btn-lg" onclick="showResults()">
+                    🎯 Saya Sudah Selesai
+                </button>
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn btn-secondary" onclick="goToCard('card-q10')">⬅️ Kembali ke Soal 10</button>
+            </div>
+        </div>
+
+        <!-- 14. RESULT / SCORE CARD -->
+        <div id="card-result" class="card result-card">
+            <h2>🎉 CHALLENGE COMPLETE!</h2>
+            <div class="score-big" id="final-score">0 / 100</div>
+            <div class="completed-badge" style="font-size: 1.2rem; margin-bottom: 20px;">
+                <span id="final-completed">0</span> / 10 Challenges Completed
+            </div>
+            <div class="feedback-msg" id="feedback-text"></div>
+
+            <button class="btn btn-primary btn-lg" onclick="resetChallenge()">
+                🔄 Ulangi Challenge
+            </button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">✅ Code copied!</div>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let completedQuestions = new Set();
+        const TOTAL_QUESTIONS = 10;
+
+        // --- NAVIGATION CONTROLLER ---
+        function goToCard(cardId) {
+            // Hide all cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => card.classList.remove('active'));
+
+            // Show targeted card
+            const target = document.getElementById(cardId);
+            if (target) {
+                target.classList.add('active');
+            }
+
+            // Always scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // --- SHOW / HIDE ANSWERS & HINTS ---
+        function toggleSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (el) {
+                el.classList.toggle('show');
+            }
+        }
+
+        function toggleAnswer(answerId, btnElement) {
+            const el = document.getElementById(answerId);
+            if (el) {
+                el.classList.toggle('show');
+                if (el.classList.contains('show')) {
+                    btnElement.innerHTML = '🔒 Sembunyikan Kunci Jawaban';
+                } else {
+                    btnElement.innerHTML = '🔓 Lihat Kunci Jawaban';
+                }
+            }
+        }
+
+        // --- COPY CODE FUNCTIONALITY ---
+        function copyCode(codeId) {
+            const codeText = document.getElementById(codeId).innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                showToast('✅ Code copied!');
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // --- SCORE & COMPLETION SYSTEM ---
+        function markComplete(qNum) {
+            if (!completedQuestions.has(qNum)) {
+                completedQuestions.add(qNum);
+                updateScoreUI();
+            }
+
+            // Update Button Styling
+            const btn = document.getElementById(`mark-btn-${qNum}`);
+            if (btn) {
+                btn.innerHTML = '✅ Sudah Selesai';
+                btn.className = 'btn btn-complete';
+            }
+        }
+
+        function updateScoreUI() {
+            const score = completedQuestions.size * 10;
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('completed-count').innerText = completedQuestions.size;
+        }
+
+        // --- RESULT SCREEN LOGIC ---
+        function showResults() {
+            const score = completedQuestions.size * 10;
+            document.getElementById('final-score').innerText = `${score} / 100`;
+            document.getElementById('final-completed').innerText = completedQuestions.size;
+
+            let feedback = '';
+            if (score >= 90) {
+                feedback = "🔥 Amazing! Kamu sudah menguasai time di Python!";
+            } else if (score >= 70) {
+                feedback = "👏 Good job! Tinggal sedikit lagi!";
+            } else if (score >= 50) {
+                feedback = "💪 Lumayan! Coba review materinya lagi.";
+            } else {
+                feedback = "📚 Jangan menyerah! Coba pelajari Quick Review lagi.";
+            }
+
+            document.getElementById('feedback-text').innerText = feedback;
+            goToCard('card-result');
+        }
+
+        function resetChallenge() {
+            completedQuestions.clear();
+            updateScoreUI();
+
+            // Reset mark buttons
+            for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+                const btn = document.getElementById(`mark-btn-${i}`);
+                if (btn) {
+                    btn.innerHTML = '✅ Tandai Selesai';
+                    btn.className = 'btn btn-success';
+                }
+            }
+
+            // Uncheck final checkboxes
+            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+
+            goToCard('card-home');
+        }
+    </script>
+</body>
+</html>
